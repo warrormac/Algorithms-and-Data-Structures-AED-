@@ -4,8 +4,30 @@
 
 using namespace std;
 
+template <typename T>
+struct Less
+{
+	int cmp(T* a, T* b) {
+		return *a > * b;
+	}
+};
 
-void rellenar(int tam,int *ptr)
+struct Greater
+{
+	void cmp(int &a, int &b) {
+		cout <<'\n'<< a << " " <<b<<endl;
+		if (a<b)
+		{
+			int h = a;
+			a = b;
+			b = h;
+		}
+		
+	}
+};
+
+
+void rellenar(int tam, int* ptr)
 {
 	srand(time(NULL));
 	for (int c = 0; c < tam; c++)
@@ -13,10 +35,14 @@ void rellenar(int tam,int *ptr)
 		int num = 1 + rand() % (11 - 1);
 		*(ptr + c) = num;
 	}
+	for (int i = 0; i < tam; i++)
+	{
+		cout << ptr[i]<<" ";
+	}
 }
 
 
-void copiar(int *ptr,int* ptr2, int* ptr3, int* ptr4,int tam)
+void copiar(int* ptr, int* ptr2, int* ptr3, int* ptr4, int tam)
 {
 	for (int i = 0; i < tam; i++)
 	{
@@ -50,6 +76,21 @@ void ptr_to_function(int* ptr, int size, bool(*f)(int, int)) { //punteor a funci
 	cout << endl;
 }
 
+template <typename G>
+void ptr_to_function1(int* ptr2, int size) { //punteor a clase
+	G a;
+	bool b;
+	for (int i = 0; i < size; i++) {
+		for (int j = 0; j <size; j++) {
+			a.cmp(*(ptr2 + i), *(ptr2 + j));
+			
+		}
+	}
+	for (int i = 0; i < size; i++)
+		cout << *(ptr2 + i) << " ";
+	cout << endl;
+}
+
 int main()
 {
 	int tam;
@@ -59,12 +100,16 @@ int main()
 	int* ptr2 = new int[tam];
 	int* ptr3 = new int[tam];
 	int* ptr4 = new int[tam];
-	rellenar(tam,ptr);
-	copiar(ptr, ptr2, ptr3, ptr4, tam);
-	ptr_to_function(ptr, tam, menorAmayor);
+	Greater a;
 
-	
-	
+
+	rellenar(tam, ptr);
+	copiar(ptr, ptr2, ptr3, ptr4, tam);
+	//ptr_to_function(ptr, tam, menorAmayor);
+	ptr_to_function1 < Greater > (ptr2, tam);
+
+
+
 }
 
 ////////////////////////////////////////////////////////////////////////
