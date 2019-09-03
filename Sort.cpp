@@ -1,4 +1,5 @@
 #include <iostream>
+#include <thread>
 #include<stdlib.h>
 #include<time.h>
 
@@ -8,13 +9,15 @@ class valores {
 public:
 	int a, b;
 	void set_val(int& x, int& y)
-	{	a = x;b = y; }
-	};
+	{
+		a = x; b = y;
+	}
+};
 struct Less
 {
-	bool cmp(int& a, int& b) {
+	inline void cmp(int& a, int& b) {
 		if (a < b)
-			return 1;
+			swap(a, b);
 	}
 };
 
@@ -22,12 +25,12 @@ struct Greater
 {
 	bool cmp(int& a, int& b) {
 		//cout <<'\n'<< a << " " <<b<<endl;
-		if (a>b)
+		if (a > b)
 			return 1;
 	}
 };
 
-class menor:public valores {
+class menor :public valores {
 public:
 	bool ordenar()
 	{
@@ -56,8 +59,8 @@ void rellenar(int tam, int* ptr)
 	cout << "La matriz generada:";
 	for (int i = 0; i < tam; i++)
 	{
-		
-		cout << ptr[i]<<" ";
+
+		cout << ptr[i] << " ";
 	}
 	cout << endl;
 }
@@ -79,10 +82,35 @@ bool mayorAmenor(int i, int j) {
 bool menorAmayor(int i, int j) {
 	return i < j;
 }
-void swap(int& x, int& y) {
+inline void swap(int& x, int& y) {
 	int h = x;
 	x = y;
 	y = h;
+}
+template<typename T>
+void ptr_to_function1(int* ptr2, int size) { //punteor a clase
+	T a;
+	for (int i = 0; i < size; i++) {
+		for (int j = 0; j < size; j++) {
+			a.cmp(*(ptr2 + i), *(ptr2 + j));
+
+
+		}
+	}
+	for (int i = 0; i < size; i++)
+		cout << *(ptr2 + i) << " ";
+	cout << endl;
+}
+void ptr_to_function4(int* ptr, int size) { //basic
+	for (int i = 0; i < size; i++) {
+		for (int j = 0; j < size; j++) {
+			if (*(ptr+i)<*(ptr+j))
+				swap(*(ptr + i), *(ptr + j));
+		}
+	}
+	for (int i = 0; i < size; i++)
+		cout << *(ptr + i) << " ";
+	cout << endl;
 }
 
 void ptr_to_function(int* ptr, int size, bool(*f)(int, int)) { //punteor a funcion
@@ -99,13 +127,13 @@ void ptr_to_function(int* ptr, int size, bool(*f)(int, int)) { //punteor a funci
 
 void ptr_to_function2(int* ptr3, int size) { //poli
 	menor m;
-	valores *v=&m;
-	
+	valores* v = &m;
+
 	bool b;
 	for (int i = 0; i < size; i++) {
 		for (int j = 0; j < size; j++) {
 			v->set_val(*(ptr3 + i), *(ptr3 + j));
-			b=m.ordenar();
+			b = m.ordenar();
 			if (b == 1)
 			{
 				swap(*(ptr3 + i), *(ptr3 + j));
@@ -118,30 +146,14 @@ void ptr_to_function2(int* ptr3, int size) { //poli
 		cout << *(ptr3 + i) << " ";
 	cout << endl;
 }
-template <typename G>
-void ptr_to_function1(int* ptr2, int size, G a) { //punteor a clase
-	
-	bool b;
-	for (int i = 0; i < size; i++) {
-		for (int j = 0; j <size; j++) {
-			b=a.cmp(*(ptr2 + i), *(ptr2 + j));
-			if (b == 1)
-			{
-				swap(*(ptr2 + i), *(ptr2 + j));
-				b = 0;
-			}
-			
-		}
-	}
-	for (int i = 0; i < size; i++)
-		cout << *(ptr2 + i) << " ";
-	cout << endl;
-}
+
 
 int main()
 {
-	int tam,temp=0;
-	clock_t t1, t2,t3,t4,t5,t6;
+	int tam, temp = 0;
+	int nt = thread::hardware_concurrency();
+	cout << nt << "\n\n\n";
+	clock_t t1, t2, t3, t4, t5, t6,t7,t8;
 	float diff;
 	cout << "ingrese el tamaño de su array: ";
 	cin >> tam;
@@ -174,16 +186,23 @@ int main()
 			cout << "Running time: " << diff << endl;
 
 			t5 = clock();
-			Less b;
 			cout << "Ordenada con el metodo de Functor\n";
-			ptr_to_function1(ptr2, tam, b);
+			ptr_to_function1< Less > (ptr2, tam);
 			t6 = clock();
 			diff = ((float)t6 - (float)t5) / CLOCKS_PER_SEC;
+			cout << "Running time: " << diff << endl;
+
+			t7 = clock();
+			cout << "Ordenada basica\n";
+			ptr_to_function4(ptr, tam);
+			t8 = clock();
+			diff = ((float)t8 - (float)t7) / CLOCKS_PER_SEC;
 			cout << "Running time: " << diff << endl;
 
 			break;
 		}
 		if (temp == 2)
+		{
 			t1 = clock();
 			cout << "\nOrdenada con el metodo de puntero a funcion\n";
 			ptr_to_function(ptr, tam, mayorAmenor);
@@ -199,15 +218,40 @@ int main()
 			cout << "Running time: " << diff << endl;
 
 			t5 = clock();
-			Greater a;
+			
 			cout << "Ordenada con el metodo de Functor\n";
-			ptr_to_function1(ptr2, tam, a);
+			ptr_to_function1<Greater>(ptr2, tam);
 			t6 = clock();
 			diff = ((float)t6 - (float)t5) / CLOCKS_PER_SEC;
 			cout << "Running time: " << diff << endl;
 			break;
+		}
+			
+		if (temp == 3)
+		{
+			
+			thread th1= thread(ptr_to_function, ptr, tam, mayorAmenor);
+			
+
+
+			t1 = clock();
+			cout << "\nOrdenada con el metodo de puntero a funcion\n";
+			thread th2 = thread(ptr_to_function2, ptr3, tam);
+			
+			th1.join();
+			t2 = clock();
+			diff = ((float)t2 - (float)t1) / CLOCKS_PER_SEC;
+			cout << "Running time: " << diff << endl;
+
+
+			t3 = clock();
+			cout << "Ordenada con el metodo de polimorfismo\n";
+			th2.join();
+			t4 = clock();
+			diff = ((float)t4 - (float)t3) / CLOCKS_PER_SEC;
+			cout << "Running time: " << diff << endl;
+			break;
+			//thread th3 = thread(ptr_to_function1, ptr2, tam, a);
+		}
 	}
-
-	delete ptr, ptr2, ptr3, ptr4;
 }
-
