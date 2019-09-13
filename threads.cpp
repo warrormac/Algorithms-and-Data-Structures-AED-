@@ -32,7 +32,7 @@ void main()
 #include<stdlib.h>
 using namespace std;
 
-void merge(vector<int>& vec, int start, int mid, int end)
+void merge(vector<long>& vec, int start, int mid, int end)
 {
 	vector<int> one(vec.begin() + start, vec.begin() + mid + 1);
 	vector<int> two(vec.begin() + mid + 1, vec.begin() + end + 1);
@@ -55,7 +55,7 @@ void merge(vector<int>& vec, int start, int mid, int end)
 }
 
 
-void merge_sort(vector<int>& vec, int start, int end)
+void merge_sort(vector<long>& vec, int start, int end)
 {
 	if (start >= end)
 		return;
@@ -78,7 +78,7 @@ void procesador(int a, int& nt)
 
 }
 
-void cut(vector<int>& vec, int start, int end, int nt)
+void cut(vector<long>& vec, int start, int end, int nt)
 {
 	merge_sort(vec, 0, end);
 }
@@ -108,16 +108,17 @@ int main()
 	int* a = new int[tam];
 	rellenar(tam, a);
 	int size = tam;
-	vector<int> vec(a, a + size + 1);
+	vector<long> vec(a, a + size + 1);
 	procesador(size, nt);
 	int size2 = size / nt;
-	while (size2 < size)
+	
+	while (size2 <= size)
 	{
 		cut(vec, 0, size2, nt);
 		size2 += size2;
 	}
-	for (int i = 0; i < size; i++)
-	{
-		cout << vec[i];
-	}
+	for (int i = 0; i < size-1; i++)
+	
+		cout << vec[i]<<" ";
+	
 }
