@@ -161,15 +161,17 @@ void merge_sort(vector<long>& vec, long start, long end)
 {
 	if (start >= end)
 		return;
-
-
+	thread t[2];
 	int mid = start + (end - start) / 2;
-	
-	thread first(merge_sort, std::ref(vec), start, mid);	
-	thread second(merge_sort, std::ref(vec), mid + 1, end);
-	first.join();
-	second.join();
+	for (int i = 0; i < 1; i++)
+	{
+		t[i]=thread(merge_sort, std::ref(vec), start, mid);
+		t[i+1]=thread(merge_sort, std::ref(vec), mid + 1, end);
+	}
+	for (int i = 0; i < 2; i++)
+		t[i].join();
 	merge(vec, start, mid, end);
+	
 }
 
 
