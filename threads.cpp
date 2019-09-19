@@ -194,10 +194,11 @@ int valides(vector<long>& vec, long size)
 {
 	if (size <= 7 && size > 1)
 	{
-		merge_sort(vec, 0, size);
-		return 0;
+		return 1;
 	}
-	else return 0;
+	if (size < 2 && size >= 0)
+		return -1;
+	return 0;
 }
 int main()
 {
@@ -217,13 +218,13 @@ int main()
 	vector<long> vec(a, a + size + 1);
 
 	procesador(size, nt);
-	while (size2 > 1500)
+	while (size2 >= 1499)
 		size2 = size2 / nt;
 	//cout << size2;
 	size3 = size2;
 	temp2 = size3;
 	validez=valides(vec, size);
-	while (temp <= nt && validez!=0)
+	while (temp <= nt && validez!=1 && validez!=-1)
 	{
 		while (size2 <= size)
 		{
@@ -237,7 +238,7 @@ int main()
 		tam2 = 0;
 		size3 = size2;
 		size2 = temp2 * temp;
-		//cout << size2 << " ";
+		cout << size2 << " ";
 		if (size2 >= 1499)
 		{
 			temp = 0;
@@ -246,11 +247,11 @@ int main()
 
 		//size2 = size3;
 	}
-	if (temp == 0 && validez!=0)
+	if (temp == 0 && validez!=1 )
 		std::sort(vec.begin(), vec.begin() + size + 1);
-	else {
+	if  (validez==1)
 		merge_sort(vec, 0, size);
-	}
+	
 	for (int i = 1; i <=size ; i++)
 		cout << vec[i] << " ";
 }
