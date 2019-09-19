@@ -238,7 +238,7 @@ int main()
 		tam2 = 0;
 		size3 = size2;
 		size2 = temp2 * temp;
-		cout << size2 << " ";
+		//cout << size2 << " ";
 		if (size2 >= 1499)
 		{
 			temp = 0;
@@ -251,7 +251,8 @@ int main()
 		std::sort(vec.begin(), vec.begin() + size + 1);
 	if  (validez==1)
 		merge_sort(vec, 0, size);
-	
+	if (temp!=0 && validez!=1)
+		merge_sort(vec, 0, size);
 	for (int i = 1; i <=size ; i++)
 		cout << vec[i] << " ";
 }
