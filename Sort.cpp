@@ -308,7 +308,7 @@ struct Greater
 // Merges two subarrays of arr[]. 
 // First subarray is arr[l..m] 
 // Second subarray is arr[m+1..r] 
-void merge(int *arr, int l, int m, int r)
+void merge(int* arr, int l, int m, int r)
 {
 	int i, j, k;
 	int n1 = m - l + 1;
@@ -316,7 +316,7 @@ void merge(int *arr, int l, int m, int r)
 
 	/* create temp arrays */
 	int* L = new int[n1];
-	int *R=new int [n2];
+	int* R = new int[n2];
 	/* Copy data to temp arrays L[] and R[] */
 	for (i = 0; i < n1; i++)
 		L[i] = arr[l + i];
@@ -363,7 +363,7 @@ void merge(int *arr, int l, int m, int r)
 
 /* l is for left index and r is right index of the
    sub-array of arr to be sorted */
-void mergeSort(int *arr, int l, int r)
+void mergeSort(int* arr, int l, int r)
 {
 	if (l < r)
 	{
@@ -416,25 +416,33 @@ void rellenar(int tam, int* ptr)
 		*(ptr + c) = num;
 	}
 	cout << "La matriz generada:";
-	for (int i = 0; i < tam; i++)
-	{
-
-		cout << ptr[i] << " ";
-	}
-	cout << endl;
+	//for (int i = 0; i < tam; i++)
+//	cout << ptr[i] << " ";
+	
+	//cout << endl;
 }
 
-void ptr_function(int *tam, int arr_size, void (*f)(int *,int,int ))
+void ptr_function(int* tam, int arr_size, void (*f)(int*, int, int))
 {
-	(*f)(tam, 0, arr_size-1);
+	clock_t t1, t2;
+	float diff;
+	t1 = clock();
+	(*f)(tam, 0, arr_size - 1);
+	t2 = clock();
 	printf("\nSorted array bt funcion \n");
-	printArray(tam, arr_size);
+	//printArray(tam, arr_size);
+	diff = ((float)t2 - (float)t1) / CLOCKS_PER_SEC;
+	cout << "Running time: " << diff << endl;
+
 }
 
 void poli(int* ptr3, int size) { //poli
 	menor m;
 	valores* v = &m;
-
+	clock_t t1, t2;
+	float diff;
+	t1 = clock();
+	
 	bool b;
 	for (int i = 0; i < size; i++) {
 		for (int j = 0; j < size; j++) {
@@ -449,24 +457,35 @@ void poli(int* ptr3, int size) { //poli
 
 		}
 	}
+	t2 = clock();
 	printf("\nSorted array by poli \n");
 	printArray(ptr3, size);
+	diff = ((float)t2 - (float)t1) / CLOCKS_PER_SEC;
+	cout << "Running time: " << diff << endl;
 }
 template<typename T>
 void ptr_class(int* ptr2, int size)
 { //punteor a clase
 	T a;
 	int b;
-	 b=a.cmp(ptr2, size);
-	 if (b == 1)
-		 mergeSort(ptr2, 0, size - 1);
-	 printf("\nSorted array by functor \n");
-	 printArray(ptr2, size);
+	clock_t t1, t2;
+	float diff;
+	t1 = clock();
+	 b = a.cmp(ptr2, size);
+	
+	if (b == 1)
+		mergeSort(ptr2, 0, size - 1);
+	t2 = clock();
+	printf("\nSorted array by functor \n");
+	//printArray(ptr2, size);
+	diff = ((float)t2 - (float)t1) / CLOCKS_PER_SEC;
+	cout << "Running time: " << diff << endl;
 }
 /* Driver program to test above functions */
 int main()
 {
 	int arr_size;
+	// t3, t4, t5, t6, t7, t8;
 	cout << "ingrese el tamaño de su array: ";
 	cin >> arr_size;
 	int* tam = new int[arr_size];
@@ -477,13 +496,12 @@ int main()
 	copiar(tam, ptr2, ptr3, ptr4, arr_size);
 	ptr_function(tam, arr_size, mergeSort);
 	//poli(ptr3, arr_size);
-	ptr_class<Less>(ptr2,arr_size);
+	ptr_class<Less>(ptr2, arr_size);
 
 	//mergeSort(tam, 0, arr_size - 1);
 
-	
+
 	return 0;
 }
-
 
 
