@@ -25,236 +25,164 @@ void main()
 }
 
 ---------------------------------------------------------------------
-#include <iostream>
-#include <thread>
-#include <vector>
+#include <iostream> 
+#include <thread> 
+#include <time.h> 
 
-#include<stdlib.h>
+
 using namespace std;
 
-void merge(vector<long>& vec, int start, int mid, int end)
-{
-	vector<int> one(vec.begin() + start, vec.begin() + mid + 1);
-	vector<int> two(vec.begin() + mid + 1, vec.begin() + end + 1);
 
-	int a = 0;
-	int b = 0;
-	int index = start;
-	while (a < one.size() && b < two.size())
+
+
+void merge(long l, long m, long r, long *arr)
+{
+	long i, j, k;
+	long n1 = m - l + 1;
+	long n2 = r - m;
+
+	
+	long* L = new long[n1];
+	long* R = new long[n2];
+	
+	for (i = 0; i < n1; i++)
+		L[i] = arr[l + i];
+	for (j = 0; j < n2; j++)
+		R[j] = arr[m + 1 + j];
+
+	
+	i = 0; 
+	j = 0; 
+	k = l; 
+	while (i < n1 && j < n2)
 	{
-		if (one[a] < two[b])
-			vec[index++] = one[a++];
+		if (L[i] <= R[j])
+		{
+			arr[k] = L[i];
+			i++;
+		}
 		else
-			vec[index++] = two[b++];
+		{
+			arr[k] = R[j];
+			j++;
+		}
+		k++;
+	}
+	while (i < n1)
+	{
+		arr[k] = L[i];
+		i++;
+		k++;
 	}
 
-	while (a < one.size())
-		vec[index++] = one[a++];
-	while (b < two.size())
-		vec[index++] = two[b++];
+	while (j < n2)
+	{
+		arr[k] = R[j];
+		j++;
+		k++;
+	}
+	delete L;
+	delete R;
 }
-
-
-void merge_sort(vector<long>& vec, int start, int end)
+// merge sort function --------------------------------------------------------------------------------------------------------------------------------
+/*void merge_sort(int low, int high,long *a)
 {
-	if (start >= end)
-		return;
-	
+	// calculating mid point of array 
+	int mid = low + (high - low) / 2;
+	if (low < high) {
 
-	int mid = start + (end - start) / 2;
-	thread first(merge_sort, std::ref(vec), start, mid);
-	thread second(merge_sort, std::ref(vec), mid + 1, end);
-	first.join();
-	second.join();
-	merge(vec, start, mid, end);
-}
+		// calling first half 
+		merge_sort(low, mid,a);
 
-void procesador(int a, int& nt)
+		// calling second half 
+		merge_sort(mid + 1, high,a);
+
+		// merging the two halves 
+		merge(low, mid, high,a);
+	}
+}*/
+
+// thread function for multi-threading 
+void merge_sort(int low, int high,long *a)
 {
-	if (a == 0)
-		return;
-	while ((a < nt))
-		nt /= 2;
+	// which part out of 4 parts 
+	//int midd = part++;
 
+	// calculating low and high 
+	 //low = midd * (20/ 4);
+	 //high = (midd + 1) * (20 / 4) - 1;
+
+	// evaluating mid point 
+	int mid = low + (high - low) / 2;
+	if (low < high) {
+		merge_sort(low, mid,a);
+		merge_sort(mid + 1, high,a);
+		merge(low, mid, high,a);
+	}
 }
-
-void cut(vector<long>& vec, int start, int end, int nt)
-{
-	merge_sort(vec, 0, end);
-}
-
-void rellenar(int tam, int* ptr)
+void rellenar(long tam, long* ptr)
 {
 	srand(time(NULL));
-	for (int c = 0; c < tam; c++)
+	for (long c = 0; c < tam; c++)
 	{
-		int num = 1 + rand() % (11 - 1);
+		long num = 1 + rand() % (11 - 1);
 		*(ptr + c) = num;
 	}
 	cout << "La matriz generada:";
-	for (int i = 0; i < tam; i++)
-	{
+	//for (int i = 0; i < tam; i++)
+//	cout << ptr[i] << " ";
 
-		cout << ptr[i] << " ";
-	}
-	cout << "\n\n\n";
+	//cout << endl;
 }
+
 int main()
 {
-	int nt = thread::hardware_concurrency();
-	int tam;
-	cout << "ingrese el tamaño de su array: ";
+	long tam, nt = 8;
+	int i = 0;
+	thread t[8];
+	cout << "ingrese el tamaño: ";
 	cin >> tam;
-	int* a = new int[tam];
-	rellenar(tam, a);
-	int size = tam;
-	vector<long> vec(a, a + size + 1);
-	procesador(size, nt);
-	int size2 = size / nt;
-	
-	while (size2 <= size)
-	{
-		cut(vec, 0, size2, nt);
-		size2 += size2;
-	}
-	for (int i = 0; i < size-1; i++)
-	
-		cout << vec[i]<<" ";
-	
-}
--------------------------------------------------------------------------
-#include <iostream>
-#include <thread>
-#include <vector>
-#include <algorithm>
-#include<stdlib.h>
-
-using namespace std;
-
-void merge(vector<long>& vec, long start, long mid, long end)
-{
-	vector<int> one(vec.begin() + start, vec.begin() + mid + 1);
-	vector<int> two(vec.begin() + mid + 1, vec.begin() + end + 1);
-
-	int a = 0;
-	int b = 0;
-	int index = start;
-	while (a < one.size() && b < two.size())
-		(one[a] < two[b])? vec[index++] = one[a++]: vec[index++] = two[b++];
-
-	while (a < one.size())
-		vec[index++] = one[a++];
-	while (b < two.size())
-		vec[index++] = two[b++];
-}
-
-void merge_sort(vector<long>& vec, long start, long end)
-{
-	if (start >= end)
-		return;
-	thread t[2];
-	int mid = start + (end - start) / 2;
-	for (int i = 0; i < 1; i++)
-	{
-		t[i] = thread(merge_sort, std::ref(vec), start, mid);
-		t[i + 1] = thread(merge_sort, std::ref(vec), mid + 1, end);
-	}
-	for (int i = 0; i < 2; i++)
-		t[i].join();
-	merge(vec, start, mid, end);
-}
-
-
-void procesador(int a, int& nt)
-{
-	if (a == 0)
-		return;
-	while ((a < nt))
-		nt /= 2;
-}
-
-
-void rellenar(int tam, int* ptr)
-{
-	srand(time(NULL));
-	for (int c = 0; c < tam; c++)
-	{
-		int num = 1 + rand() % (11 - 1);
-		*(ptr + c) = num;
-	}
-	cout << "La matriz generada:";
-	for (int i = 0; i < tam; i++)
-	{
-
-		cout << ptr[i] << " ";
-	}
-	cout << "\n\n\n";
-}
-int valides(vector<long>& vec, long size)
-{
-	if (size <= 7 && size > 1)
-	{
-		return 1;
-	}
-	if (size < 2 && size >= 0)
-		return -1;
-	return 0;
-}
-int main()
-{
-	int nt = thread::hardware_concurrency();
-	int tam, tam2 = 0, size3, size2;
-	int temp = 0, temp2,validez=0;
-
-	cout << "ingrese el tamaño de su array: ";
-	cin >> tam;
-
-	int size = tam;
-	int* a = new int[tam];
-	size2 = size / nt;
-
+	long* a = new long[tam];
 	rellenar(tam, a);
 
-	vector<long> vec(a, a + size + 1);
+	long temp = 0, temp2, validez = 0, tam2 = 0;
+	long size2 = tam / nt;
+	long size3 = size2;
+	// t1 and t2 for calculating time for 
+	// merge sort 
+	clock_t t1, t2;
 
-	procesador(size, nt);
-	while (size2 >= 1499)
-		size2 = size2 / nt;
-	//cout << size2;
-	size3 = size2;
+	t1 = clock();
+
+
 	temp2 = size3;
-	validez=valides(vec, size);
-	while (temp <= nt && validez!=1 && validez!=-1)
-	{
-		while (size2 <= size)
-		{
-			merge_sort(vec, tam2, size2);
-			tam2 = size2;
-			size2 += size3;
 
-		}
+	// creating 4 threads 
+	for (int i = 0; i < 8; i++,tam2 = size2,size2 += size3)
+		t[i]=thread(merge_sort, tam2, size2,a);
 
-		temp++;
-		tam2 = 0;
-		size3 = size2;
-		size2 = temp2 * temp;
-		//cout << size2 << " ";
-		if (size2 >= 1499)
-		{
-			temp = 0;
-			break;
-		}
+	// joining all 4 threads 
+	for (int i = 0; i < 8; i++)
+		t[i].join();
+	
 
-		//size2 = size3;
-	}
-	if (temp == 0 && validez!=1 )
-		std::sort(vec.begin(), vec.begin() + size + 1);
-	if  (validez==1)
-		merge_sort(vec, 0, size);
-	if (temp!=0 && validez!=1)
-		merge_sort(vec, 0, size);
-	for (int i = 1; i <=size ; i++)
-		cout << vec[i] << " ";
+	// merging the final 4 parts 
+	//merge(0, (tam / 2 - 1) / 2, tam / 2 - 1,a);
+	//merge(tam / 2, tam / 2 + (tam - 1 - tam / 2) / 2, tam - 1,a);
+	merge_sort(0, tam - 1, a);
+
+	t2 = clock();
+
+	// displaying sorted array 
+	cout << "Sorted array: ";
+	//for (int i = 0; i < tam; i++)
+		//cout << a[i] << " ";
+
+	// time taken by merge sort in seconds 
+	cout << "Time taken: " << (t2 - t1) /
+		(double)CLOCKS_PER_SEC << endl;
+
+	return 0;
 }
 ----------------------------------------------
 	
