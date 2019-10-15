@@ -105,10 +105,30 @@ void Tree<T, O>::inOrder(struct Node<T>* root)
 		cout << curr->n_x << " ";
 		curr = curr->N_nodes[1];
 
-	} 
+	}
 }
 
 
+
+/*template <class T, class O>
+void Tree<T, O>::inOrder(struct Node<T>* root)
+{
+	stack<Node <T>*>s;
+	Node<T>* curr = root;
+	while (curr != NULL || s.empty() == false)
+	{
+		while (curr != NULL)
+		{
+			s.push(curr);
+			curr = curr->N_nodes[0];
+		}
+		curr = s.top();
+		s.pop();
+		cout << curr->n_x;
+		curr = curr->N_nodes[1];
+	}
+
+}
 template<class T, class O>
 void Tree<T, O>::postOrder(Node<T>* root)
 {
@@ -138,14 +158,60 @@ void Tree<T, O>::postOrder(Node<T>* root)
 		cout << node->n_x << " ";
 	}
 }
+template <class T, class O>
+void Tree<T, O>::postOrder(Node<T>* root)
+{
+	if (root == NULL)return;
+	stack<Node<T>*>s1, s2;
+	s1.push(root);
+	Node<T>* nodo;
 
+	while (!s1.empty())
+	{
+		nodo = s1.top();
+		s1.pop();
+		s2.push(nodo);
+		if (nodo->N_nodes[0])
+			s1.push(nodo->N_nodes[0]);
+		if (nodo->N_nodes[1])
+			s2.push(nodo->N_nodes[1]);
+	}
+	while (!s2.empty())
+	{
+		nodo = s2.top();
+		s2.pop();
+		cout << nodo->n_x;
+	}
+}*/
+
+template <class T, class O>
+void Tree<T, O>::preorder(struct Node<T>* root)
+{
+	stack <Node<T>*>s;
+	Node<T>* curr;
+
+	curr = root;
+	while (curr != NULL || s.empty() == false)
+	{
+		
+		while (curr != NULL)
+		{
+			cout << curr->n_x;
+			s.push(curr);
+			curr = curr->N_nodes[0];
+		}
+		curr = s.top();
+		s.pop();
+		curr = curr->N_nodes[1];
+	}
+}
 
 
 
 int main()
 {
 	Tree<int, Less<int> > Ent;
-	
+
 
 	cout << "-----BINARY TREE-----" << endl;
 	cout << "\n";
@@ -156,7 +222,7 @@ int main()
 	root->N_nodes[0]->N_nodes[0] = new Node<int>(4);
 	root->N_nodes[0]->N_nodes[1] = new Node<int>(5);
 
-	Ent.postOrder(root);
+	Ent.preorder(root);
 	return 0;
 
 }
