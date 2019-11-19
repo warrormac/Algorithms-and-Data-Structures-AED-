@@ -1,7 +1,7 @@
 #include<iostream> 
 #include <iomanip>
 using namespace std;
-  
+
 class Node
 {
 public:
@@ -31,18 +31,18 @@ Node* newNode(int key)
 	node->key = key;
 	node->left = NULL;
 	node->right = NULL;
-	node->height = 1; 
+	node->height = 1;
 	return(node);
 }
-  
+
 Node* rightRotate(Node* y)
 {
 	Node* x = y->left;
 	Node* T2 = x->right;
- 
+
 	x->right = y;
 	y->left = T2;
- 
+
 	y->height = max(height(y->left),
 		height(y->right)) + 1;
 	x->height = max(height(x->left),
@@ -73,7 +73,7 @@ int getBalance(Node* N)
 		return 0;
 	return height(N->left) - height(N->right);
 }
-  
+
 Node* insert(Node* node, int key)
 {
 	if (node == NULL)
@@ -133,12 +133,9 @@ Node* deleteNode(Node* root, int key)
 
 	else
 	{
-		if ((root->left == NULL) ||
-			(root->right == NULL))
+		if ((root->left == NULL) ||(root->right == NULL))
 		{
-			Node* temp = root->left ?
-				root->left :
-				root->right;
+			Node* temp = root->right ? root->right : root->left;
 
 			if (temp == NULL)
 			{
@@ -146,14 +143,14 @@ Node* deleteNode(Node* root, int key)
 				root = NULL;
 			}
 			else
-				*root = *temp; 
+				*root = *temp;
 			free(temp);
 		}
 		else
 		{
-			Node* temp = minValueNode(root->right);
+			Node* temp = minValueNode(root->left);
 			root->key = temp->key;
-			root->right = deleteNode(root->right,
+			root->left = deleteNode(root->left,
 				temp->key);
 		}
 	}
@@ -161,28 +158,23 @@ Node* deleteNode(Node* root, int key)
 	if (root == NULL)
 		return root;
 
-	root->height = 1 + max(height(root->left),
-		height(root->right));
+	root->height = 1 + max(height(root->left), height(root->right));
 
 	int balance = getBalance(root);
 
-	if (balance > 1 &&
-		getBalance(root->left) >= 0)
+	if (balance > 1 && getBalance(root->left) >= 0)
 		return rightRotate(root);
 
-	if (balance > 1 &&
-		getBalance(root->left) < 0)
+	if (balance > 1 && getBalance(root->left) < 0)
 	{
 		root->left = leftRotate(root->left);
 		return rightRotate(root);
 	}
 
-	if (balance < -1 &&
-		getBalance(root->right) <= 0)
+	if (balance < -1 && getBalance(root->right) <= 0)
 		return leftRotate(root);
 
-	if (balance < -1 &&
-		getBalance(root->right) > 0)
+	if (balance < -1 && getBalance(root->right) > 0)
 	{
 		root->right = rightRotate(root->right);
 		return leftRotate(root);
@@ -190,7 +182,6 @@ Node* deleteNode(Node* root, int key)
 
 	return root;
 }
-
 void preOrder(Node* root)
 {
 	if (root != NULL)
@@ -200,17 +191,64 @@ void preOrder(Node* root)
 		preOrder(root->right);
 	}
 }
-void prints(Node* reference, int identation)
+struct Trunk
 {
-	if (!reference)
+	Trunk* prev;
+	string str;
+
+	Trunk(Trunk* prev, string str)
+	{
+		this->prev = prev;
+		this->str = str;
+	}
+};
+
+// Helper function to print branches of the binary tree
+void showTrunks(Trunk* p)
+{
+	if (p == nullptr)
 		return;
-	prints(reference->left, identation + 4);
-	if (identation)
-		std::cout << std::setw(identation) << ' ';
-	std::cout << "" << reference->key << std::endl;
-	prints(reference->right, identation + 4);
-	return;
+
+	showTrunks(p->prev);
+
+	cout << p->str;
 }
+
+// Recursive function to print binary tree
+// It uses inorder traversal
+void printTree(Node* root, Trunk* prev, bool isLeft)
+{
+	if (root == nullptr)
+		return;
+
+	string prev_str = "    ";
+	Trunk* trunk = new Trunk(prev, prev_str);
+
+	printTree(root->left, trunk, true);
+
+	if (!prev)
+		trunk->str = "---";
+	else if (isLeft)
+	{
+		trunk->str = ".---";
+		prev_str = "   |";
+	}
+	else
+	{
+		trunk->str = "`---";
+		prev->str = prev_str;
+	}
+
+	showTrunks(trunk);
+	cout << root->key << endl;
+
+	if (prev)
+		prev->str = prev_str;
+	trunk->str = "   |";
+
+	printTree(root->right, trunk, false);
+}
+
 
 int main()
 {
@@ -228,12 +266,11 @@ int main()
 	root = insert(root, 8);
 	root = insert(root, 3);
 
-	prints(root, 0);
-
+	printTree(root, nullptr, false);
 	system("pause");
 	cout << "\n\n\n\n\n\n";
 
-	root = deleteNode(root, 3);
-	prints(root, 0);
+	root = deleteNode(root, 5);
+	printTree(root, nullptr, false);
 	return 0;
 }
