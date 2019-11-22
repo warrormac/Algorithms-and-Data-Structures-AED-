@@ -10,7 +10,7 @@ struct Node
 	{
 		N_nodes[0] = NULL; // HIJO IZQUIERDO
 		N_nodes[1] = NULL; // HJO DERECHO
-		
+
 		n_x = x;
 	}
 	Node<T>* N_nodes[2];
@@ -296,13 +296,18 @@ void queue(list<int> lista, int size)
 int main()
 {
 	int menu = 0;
-	int num,size=0;
+	int num, size = 0;
 	Tree<int, Less<int> > Ent;
 	Tree<int, Less<int> > Ent2;
 	list<int>lista;
 	while (menu != 5)
 	{
-		cout << "ingrese 1 para ingresasr numeros\ningrese 2 para mostrar el arbol\ningrese 3 para eliminar un elemnto\ningrese 5 para EXIT: ";
+		cout << "\t         MENU   \n";
+		cout << "1. Insertar elementos en el arbol\n";
+		cout << "2. Mostrar el arbol\n";
+		//cout << "3. Eliminar un Nodo de la Lista\n";
+		cout << "5. Salir\n";
+		cout << "Opcion: ";
 		cin >> menu;
 		while (menu < 1 && menu>5 && menu == 4)
 		{
@@ -324,10 +329,23 @@ int main()
 			queue(lista, size);
 
 		}
+		/*if (menu == 3)
+		{
+			list<int>lista2;
+			list<int>::iterator itr2;
+			itr2 = lista.begin();
+			lista.sort(greater<int>());
+			itr2=next(lista.begin(), 1);
+			for (; itr2 != lista.end(); itr2++)
+				lista2.push_back(*itr2);
+			size--;
+			queue(lista2, size);
+		}*/
 		cout << "\n\n\n";
 	}
-	
+
 }
+
 
 
 -----------------------------------------------------------------------------------------
