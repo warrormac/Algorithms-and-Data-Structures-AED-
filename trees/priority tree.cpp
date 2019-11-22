@@ -1,7 +1,6 @@
 #include <iostream>
-#include <stdio.h>
 #include <list>
-
+#include <math.h>
 using namespace std;
 
 template <class T>
@@ -11,20 +10,21 @@ struct Node
 	{
 		N_nodes[0] = NULL; // HIJO IZQUIERDO
 		N_nodes[1] = NULL; // HJO DERECHO
-		n_x = x;
 		
+		n_x = x;
 	}
 	Node<T>* N_nodes[2];
 	T n_x;
 
 };
 
+
 template<class T>
 struct Less
 {
 	inline bool operator()(T a, T b)
 	{
-		return a > b;
+		return a < b;
 	}
 };
 
@@ -36,14 +36,20 @@ struct Tree
 	O Compare;
 	Tree() { n_root = 0; }
 	~Tree() {};
+	Tree* prev;
+	string str;
+
+	Tree(Tree* prev, string str)
+	{
+		this->prev = prev;
+		this->str = str;
+	}
 	bool Find(T x, Node<T>**& p);
 	bool Insert(T x);
 	bool Delete(T x);
 	Node<T>** rep(T x, Node<T>** p);
-	void InOrden(Node<T>* p);
-	void postorder(Node<T>* p);
-	void preorder(Node<T>* p);
-
+	void showTrunks(Tree* p);
+	void printTree(Node<T>* root, Tree* prev, bool isLeft);
 
 };
 
@@ -51,6 +57,7 @@ template<class T, class O>
 Node<T>** Tree<T, O>::rep(T x, Node<T>** p)
 {
 	for (p = &((*p)->N_nodes[0]); *p && (*p)->N_nodes[1]; p = &((*p)->N_nodes[Compare((*p)->n_x, x)]));//MAYOR DE LOS MENORES
+
 	return p; // DIRECCION DEL NODO IZQ
 }
 
@@ -69,6 +76,7 @@ bool Tree<T, O>::Insert(T x)
 	*p = new Node<T>(x);
 	return 1;
 }
+
 template<class T, class O>
 bool Tree<T, O>::Delete(T x)
 {
@@ -86,158 +94,241 @@ bool Tree<T, O>::Delete(T x)
 	return 1;
 
 }
-template<class T, class O>
-void Tree<T, O>::preorder(Node<T>* p)
-{
-	
-	if (!p) return;
-	cout << p->n_x << " <<->> ";
-	preorder(p->N_nodes[0]);
-	preorder(p->N_nodes[1]);
 
-}
-void heapify(int arr[], int n, int i)
-{
-	int smallest = i; // Initialize smalles as root 
-	int l = 2 * i + 1; // left = 2*i + 1 
-	int r = 2 * i + 2; // right = 2*i + 2 
-	if (l < n && arr[l] < arr[smallest])
-		smallest = l;
-	if (r < n && arr[r] < arr[smallest])
-		smallest = r;
-	if (smallest != i) {
-		swap(arr[i], arr[smallest]);
-		heapify(arr, n, smallest);
-	}
-}
-void heapSort(int arr[], int n)
-{
-	for (int i = n / 2 - 1; i >= 0; i--)
-		heapify(arr, n, i);
-	for (int i = n - 1; i >= 0; i--) {
-		swap(arr[0], arr[i]);
-		heapify(arr, i, 0);
-	}
-}
-/*void heapify(int arr[], int n, int i)
-{
-	int largest = i; // Initialize largest as root 
-	int l = 2 * i + 1; // left = 2*i + 1 
-	int r = 2 * i + 2; // right = 2*i + 2 
 
-	// If left child is larger than root 
-	if (l < n && arr[l] > arr[largest])
-		largest = l;
+template<class T>
+class Nodes {
+public:
+	Nodes(T);
+	Nodes<T>* sons[3]; // 0 Izquierdo 1 Derecho 2 padre
+	T data;
+};
 
-	// If right child is larger than largest so far 
-	if (r < n && arr[r] > arr[largest])
-		largest = r;
-
-	// If largest is not root 
-	if (largest != i)
-	{
-		swap(arr[i], arr[largest]);
-
-		// Recursively heapify the affected sub-tree 
-		heapify(arr, n, largest);
-	}
+template<class T>
+Nodes<T>::Nodes(T _data) {
+	data = _data;
+	sons[0] = sons[1] = nullptr;
 }
 
-// main function to do heap sort 
-void heapSort(int arr[], int n)
-{
-	// Build heap (rearrange array) 
-	for (int i = n / 2 - 1; i >= 0; i--)
-		heapify(arr, n, i);
+template<class T>
+void treeBuild(Nodes<T>*& head, Nodes<T>* nodeArray[100], int counter);
 
-	// One by one extract an element from heap 
-	for (int i = n - 1; i >= 0; i--)
-	{
-		// Move current root to end 
-		swap(arr[0], arr[i]);
+template<class T>
+void Heapify(Nodes<T>* node1, Nodes<T>* node2, Nodes<T>* head);
 
-		// call max heapify on the reduced heap 
-		heapify(arr, i, 0);
-	}
-}*/
-
-void printArray(int arr[], int n)
-{
-	for (int i = 0; i < n; ++i)
-		cout << arr[i] << " ";
-	cout << "\n";
-}
+//template<class T>
+//void printTree(Nodes<T>* head, int space);
 
 
-void ingresar(Tree<int, Less<int> > Ent,int *size, list<int>& lista,int a)
-{
-	cout << a << "\n";
-	Ent.Insert(a);
-	(*size)++;
-	list<int>::iterator itr = lista.end();
-	lista.insert(itr, a);
-	
 
-}
-void menu( int *size)
-{
-	
-	Tree<int, Less<int> > Ent; Tree<int, Less<int> > Ent2;
-	list<int>lista;
-	int opcion, dato;
-
-	do {
-		cout << "\t         MENU   \n";
-		cout << "1. ingresa elementos a tu arbol\n";
-		cout << "2. aplicar prioridad\n";
-		cout << "5. Salir\n";
-		cout << "Opcion: ";
-		cin >> opcion;
-
-		switch (opcion)
-		{
-		case 1:
-			int a;
-			cout << "ingrese su numero: ";
-			cin >> a;
-			ingresar(Ent, size, lista, a);
-			cout << "\n";
-			
-			system("pause");
-			break;
-
-		case 2:
-			
-			int* ptr = new int[*size];
-			int k = 0;
-			for (int const& i : lista) {
-				ptr[k++] = i;
-			}
-			
-			heapSort(ptr, *size);
-			printArray(ptr, *size);			
-
-			int itr=0;
-			for (itr;itr<*size;itr++)
-			{
-				Ent.Delete(ptr[itr]);
-				cout << itr<<"\n";
-				Ent2.Insert(ptr[itr]);
-			}
-			Ent2.preorder(Ent2.n_root);
-
-			cout << "\n";
-			system("pause");
-
+template<class T>
+void treeBuild(Nodes<T>*& head, Nodes<T>* nodeArray[200], int counter) {
+	for (int i = 1; i < counter + 1; i++) {
+		//establecemos el indice en la raiz del arbol
+		if (i == 1) {
+			head = nodeArray[i];
 		}
-		system("cls");
-	} while (opcion != 5 );
+		else {
+			//Cantidad de nodos y los dividimos entre 2 
+			int parent = -1;
+			parent = round(i / 2);
+			//Si el padre no tiene hijo izquierdo balanceamos 
+			if (nodeArray[parent]->sons[0] == NULL) {
+				;
+				nodeArray[parent]->sons[0] = nodeArray[i];
+				nodeArray[i]->sons[2] = nodeArray[parent];
+				Heapify(nodeArray[parent], nodeArray[i], head);
+			}
+			//Si el papa tiene hijo izquierdo insertamos en el hijo derecho y balanceamos
+			else {
+				nodeArray[parent]->sons[1] = nodeArray[i];
+				nodeArray[i]->sons[2] = nodeArray[parent];
+				Heapify(nodeArray[parent], nodeArray[i], head);
+			}
+		}
+	}
 }
+
+template<class T>
+void Heapify(Nodes<T>* node1, Nodes<T>* node2, Nodes<T>* head) {
+	//Si el primer nodo es mas grande que el primero swapeamos
+	if (node2->data > node1->data) {
+		T temp = node2->data;
+		node2->data = node1->data;
+		node1->data = temp;
+		//si no es la raiz recursividad forever :v 
+		if (node1->data != head->data) {
+			Heapify(node1->sons[2], node2->sons[2], head);
+		}
+	}
+}
+
+template<class T, class O>
+void Tree<T, O>::showTrunks(Tree* p)
+{
+	if (p == nullptr)
+		return;
+
+	showTrunks(p->prev);
+
+	cout << p->str;
+}
+
+// Recursive function to print binary tree
+// It uses inorder traversal
+template<class T, class O>
+void Tree<T, O>::printTree(Node<T>* root, Tree* prev, bool isLeft)
+{
+	if (root == nullptr)
+		return;
+
+	string prev_str = "    ";
+	Tree* trunk = new Tree(prev, prev_str);
+
+	printTree(root->N_nodes[0], trunk, true);
+
+	if (!prev)
+		trunk->str = "---";
+	else if (isLeft)
+	{
+		trunk->str = ".---";
+		prev_str = "   |";
+	}
+	else
+	{
+		trunk->str = "`---";
+		prev->str = prev_str;
+	}
+
+	showTrunks(trunk);
+	cout << root->n_x << endl;
+
+	if (prev)
+		prev->str = prev_str;
+	trunk->str = "   |";
+
+	printTree(root->N_nodes[1], trunk, false);
+}
+struct Trunk
+{
+	Trunk* prev;
+	string str;
+
+	Trunk(Trunk* prev, string str)
+	{
+		this->prev = prev;
+		this->str = str;
+	}
+};
+
+// Helper function to print branches of the binary tree
+void showTrunks(Trunk* p)
+{
+	if (p == nullptr)
+		return;
+
+	showTrunks(p->prev);
+
+	cout << p->str;
+}
+
+// Recursive function to print binary tree
+// It uses inorder traversal
+template<class T>
+void printsTree(Nodes<T>* root, Trunk* prev, bool isLeft)
+{
+	if (root == nullptr)
+		return;
+
+	string prev_str = "    ";
+	Trunk* trunk = new Trunk(prev, prev_str);
+
+	printsTree(root->sons[0], trunk, true);
+
+	if (!prev)
+		trunk->str = "---";
+	else if (isLeft)
+	{
+		trunk->str = ".---";
+		prev_str = "   |";
+	}
+	else
+	{
+		trunk->str = "`---";
+		prev->str = prev_str;
+	}
+
+	showTrunks(trunk);
+	cout << root->data << endl;
+
+	if (prev)
+		prev->str = prev_str;
+	trunk->str = "   |";
+
+	printsTree(root->sons[1], trunk, false);
+}
+void queue(list<int> lista, int size)
+{
+	Tree<int, Less<int> > temp;
+	Nodes<int>* nodeArray[100];
+	int* numbers = new int[200];
+	int k = 0;
+	for (int const& i : lista) {
+		numbers[k++] = i;
+	}
+	int counter = 10;
+	Nodes<int>* head; //= new Node(NULL)
+
+
+
+	nodeArray[0] = NULL;
+
+	for (int i = 0; i < size; i++) {
+		Nodes<int>* newNode = new Nodes<int>(numbers[i]);
+		nodeArray[i + 1] = newNode;
+	}
+
+	treeBuild(head, nodeArray, size);
+	printsTree(head, nullptr, false);
+}
+
 
 int main()
 {
-	int tam = 0;
-	int* size = &tam;
-	menu(size);
+	int menu = 0;
+	int num,size=0;
+	Tree<int, Less<int> > Ent;
+	Tree<int, Less<int> > Ent2;
+	list<int>lista;
+	while (menu != 5)
+	{
+		cout << "ingrese 1 para ingresasr numeros\ningrese 2 para mostrar el arbol\ningrese 3 para eliminar un elemnto\ningrese 5 para EXIT: ";
+		cin >> menu;
+		while (menu < 1 && menu>5 && menu == 4)
+		{
+			cout << "opcion no valida: ";
+			cin >> menu;
+		}
+		if (menu == 1)
+		{
+			cout << "ingrese el numero: ";
+			cin >> num;
+			Ent.Insert(num);
+			lista.push_back(num);
+			size++;
+			system("pause");
+		}
+		if (menu == 2)
+		{
+			Ent.printTree(Ent.n_root, nullptr, false);
+			queue(lista, size);
 
+		}
+		cout << "\n\n\n";
+	}
+	
 }
+
+
+-----------------------------------------------------------------------------------------
+	
