@@ -284,7 +284,7 @@ void preOrder(Node* root)
 
 		preOrder(root->right);
 		cout << root->key << " ";
-		
+
 	}
 }
 
@@ -350,24 +350,28 @@ void printTree(Node* root, Trunk* prev, bool isLeft)
 int main()
 {
 	Node* root = NULL;
-
-	root = insert(root, 4);
-	root = insert(root, 5);
-	root = insert(root, 6);
-	root = insert(root, 7);
-	root = insert(root, 2);
-	root = insert(root, 9);
-
-
-	root = insert(root, 1);
-	root = insert(root, 8);
-	root = insert(root, 3);
-
-	printTree(root, nullptr, false);
-	system("pause");
-	cout << "\n\n\n\n\n\n";
-
-	root = deleteNode(root, 5);
-	printTree(root, nullptr, false);
-	return 0;
+	int menu, n;
+	while (true) {
+		cout << "\t         MENU   \n";
+		cout << "1. Insertar elementos en el arbol\n";
+		cout << "2. Mostrar el arbol\n";
+		//cout << "3. Eliminar un Nodo de la Lista\n";
+		cout << "5. Salir\n";
+		cout << "Opcion: ";
+		cin >> menu;
+		if (menu == 1) {
+			std::cout << "ingrese un numero: " << std::endl;
+			std::cin >> n;
+			root=insert(root, n);
+			printTree(root, nullptr, false);
+		}
+		if (menu == 2)
+		{
+			std::cout << "ingrese el numero que quiere borrar: " << std::endl;
+			std::cin >> n;
+			root = deleteNode(root, n);
+			printTree(root, nullptr, false);
+		}
+	}
+	
 }
