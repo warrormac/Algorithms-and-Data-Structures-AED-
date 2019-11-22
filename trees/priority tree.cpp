@@ -331,4 +331,458 @@ int main()
 
 
 -----------------------------------------------------------------------------------------
+#include <iostream>
+#include <queue>
+#include <vector>
+#include <Windows.h>
+#include <math.h>
+#include <string>
+
+using namespace std;
+
+template<class T>
+class Mayor {
+public:
+	bool inline operator()(T a, T b) {
+		return a > b;
+	}
+};
+
+template<class T>
+void swap_cuock(T& a, T& b)
+{
+	T temp = a;
+	a = b;
+	b = temp;
+}
+void gotoxy(int x, int y)
+{
+	HANDLE hcon;
+	hcon = GetStdHandle(STD_OUTPUT_HANDLE);
+	COORD dwPos;
+	dwPos.X = x;
+	dwPos.Y = y;
+	SetConsoleCursorPosition(hcon, dwPos);
+}
+template<class T>
+class PriorityNode {
+public:
+	T value;
+	PriorityNode<T>* P_Nodes[3];
+	PriorityNode(T val) {
+		value = val;
+		P_Nodes[0] = P_Nodes[1] = P_Nodes[2] = 0;
+	}
+	PriorityNode(T val, PriorityNode<T>* father) {
+		value = val;
+		P_Nodes[2] = father;
+		P_Nodes[0] = P_Nodes[1] = 0;
+	}
+};
+
+template<class T, class Op>
+class PriorityTree {
+public:
+	PriorityNode<T>* Root;
+	unsigned int altura;
+	Op o;
+
+	T* data;
+	int PriorityCap, PriorityCount, PriorityLast;
+	static const int DefaultCap = 50;
+	queue<PriorityNode<T>*> colita;
+	PriorityTree() {
+		Root = 0;
+		altura = 0;
+		PriorityCap = DefaultCap;
+		PriorityCount = PriorityLast = 0;
+		resize(PriorityCap);
+	}
+	PriorityTree(const unsigned int size_i) {
+		Root = 0;
+		altura = 0;
+		PriorityCap = size_i + 1;
+		PriorityCount = PriorityLast = 0;
+		resize(PriorityCap);
+	}
+	PriorityNode<T>* AmorComoElNuestro(T val);
+	bool insertar_node(PriorityNode<T>*& p, T val);
+	bool insertar(T val);
+	//bool Extract_Max();
+	void print();
+
+	void PrintPerLevel();
+	void PrintRight(PriorityNode<T>* p, int cont);
+	void PrintAsiNoMame();
+	int get_altura(PriorityNode<T>* p);
+
+	void resize(unsigned int new_size);
+	bool is_empty();
+	unsigned int size();
+	unsigned int capacity();
+	void recalculate(int iter);
+	bool Push(const T& p);
+	bool Extract_Max();
+
+
+
+};
+template<class T, class Op>
+PriorityNode<T>* PriorityTree<T, Op>::AmorComoElNuestro(T val)
+{
+	PriorityNode<T>* NuevoNodoNomame;
+	NuevoNodoNomame = new PriorityNode<T>(val);
+	return NuevoNodoNomame;
+}
+
+template<class T, class Op>
+bool PriorityTree<T, Op>::insertar_node(PriorityNode<T>*& p, T val)
+{
+	if (p->P_Nodes[0] == NULL) {
+		//cout << "NO ENCONTRO HIJO IZQUIERDO" << endl;
+		p->P_Nodes[0] = new PriorityNode<T>(val, p);
+		colita.push(p->P_Nodes[0]);
+		PriorityNode<T>* temp = p;
+		PriorityNode<T>* temp2 = p->P_Nodes[0];
+		while (!o(temp->value, temp->P_Nodes[0]->value)) {
+			swap_cuock(temp->value, temp->P_Nodes[0]->value);
+			if (temp->P_Nodes[2]) {
+				temp = temp->P_Nodes[2];
+			}
+		}
+		return 1;
+	}
+	else if (p->P_Nodes[1] == NULL) {
+		//cout << "NO ENCONTRO HIJO DERECHO" << endl;
+		p->P_Nodes[1] = new PriorityNode<T>(val, p);
+		colita.push(p->P_Nodes[1]);
+
+		return 1;
+	}
+	//cout << "AMBOS HIJOS ESTAN OCUPAOS" << endl;
+	return 0;
+}
+template<class T, class Op>
+bool PriorityTree<T, Op>::insertar(T val)
+{
+	if (!Root) {
+		Root = new PriorityNode<T>(val);
+		colita.push(Root);
+		return 1;
+	}
+	//while (colita.front()->P_Nodes[0] && colita.front()->P_Nodes[1]) {
+	if (colita.front()->P_Nodes[0] && colita.front()->P_Nodes[1]) {
+		colita.pop();
+		//cout << "H:" << colita.front()->value << endl;
+	}
+	PriorityNode<T>* f = colita.front();
+	insertar_node(f, val);
+	return 1;
+}
+template<class T, class Op>
+void PriorityTree<T, Op>::PrintPerLevel() {
+	queue<PriorityNode<T>*> s;
+	if (!Root) { return; }
+	s.push(Root);
+	int altu_espacio = ((get_altura(Root) + 1) * 2) - 1;
+	int altu = get_altura(Root);
+	while (!s.empty()) {
+		PriorityNode<T>* Haruka = s.front();
+		int altu_now = get_altura(Haruka);
+		if (altu != get_altura(Haruka)) {
+			for (int i = 0; i < altu_espacio; i++) {
+				cout << " ";
+			}
+			cout << endl;
+			for (int i = 0; i < altu_now + 1; i++) {
+				cout << " ";
+			}
+			altu_espacio = ((altu + 1) * 2) - 1;
+			altu = altu_now;
+		}
+		else {
+			for (int i = 0; i < altu_espacio; i++) {
+				cout << " ";
+			}
+		}
+		cout << Haruka->value;
+		s.pop();
+		if (Haruka->P_Nodes[0]) {
+			s.push(Haruka->P_Nodes[0]);
+		}
+		if (Haruka->P_Nodes[1]) {
+			s.push(Haruka->P_Nodes[1]);
+		}
+	}
+}
+template<class T, class Op>
+int PriorityTree<T, Op>::get_altura(PriorityNode<T>* p)
+{
+	if (p == NULL) {
+		return -1;
+	}
+	int mayor;
+	if (get_altura(p->P_Nodes[0]) > get_altura(p->P_Nodes[1])) {
+		mayor = get_altura(p->P_Nodes[0]);
+	}
+	else {
+		mayor = get_altura(p->P_Nodes[1]);
+	}
+	return 1 + mayor;
+}
+template<class T, class Op>
+void PriorityTree<T, Op>::PrintRight(PriorityNode<T>* p, int cont)
+{
+	if (!p) {
+		return;
+	}
+	else {
+		PrintRight(p->P_Nodes[1], cont + 1);
+		for (int i = 0; i < cont; i++) {
+			cout << "   ";
+		}
+		cout << p->value << endl;
+		PrintRight(p->P_Nodes[0], cont + 1);
+	}
+}
+template<class T, class Op>
+void PriorityTree<T, Op>::resize(unsigned int new_size)
+{
+	PriorityCap = new_size;
+	T* del = data;
+	data = new T[new_size];
+	int temp;
+	if (PriorityCount < new_size) {
+		temp = PriorityCount;
+	}
+	else {
+		temp = new_size;
+	}
+	for (int i = 1; i <= temp; i++) {
+		data[i] = del[i];
+	}
+	if (del) {
+		delete[] del;
+	}
+}
+template<class T, class Op>
+bool PriorityTree<T, Op>::is_empty()
+{
+	return PriorityCount == 0;
+}
+template<class T, class Op>
+unsigned int PriorityTree<T, Op>::size()
+{
+	return PriorityCount;
+}
+template<class T, class Op>
+unsigned int PriorityTree<T, Op>::capacity()
+{
+	return PriorityCap;
+}
+template<class T, class Op>
+void PriorityTree<T, Op>::recalculate(int iter)
+{
+	int i = iter;
+	while (i != 1 && data[i] > data[i / 2]) {
+		swap_cuock(data[i], data[i / 2]);
+		//swap(data[i], data[i / 2]);
+		i /= 2;
+	}
+}
+template<class T, class Op>
+bool PriorityTree<T, Op>::Push(const T& p)
+{
+	if (PriorityCount + 1 >= PriorityCap) {
+		resize(2 * PriorityCap);
+	}
+	PriorityCount++;
+	PriorityLast++;
+	data[PriorityLast] = p;
+	recalculate(PriorityLast);
+	return 1;
+}
+template<class T, class Op>
+bool PriorityTree<T, Op>::Extract_Max()
+{
+	if (is_empty()) {
+		cout << "I WANNA BE LIKE YOU" << endl;
+		return 1;
+	}
+	PriorityCount--;
+	data[1] = data[PriorityLast];
+	PriorityLast--;
+
+	int i = 1;
+	int left, right;
+	while (i < PriorityLast) {
+		left = 2 * i;
+		right = 2 * i + 1;
+		if (data[left] > data[right] && (left <= PriorityLast)) {
+			swap_cuock(data[i], data[left]);
+			i = left;
+		}
+		else if (right <= PriorityLast) {
+			swap_cuock(data[i], data[right]);
+			i = right;
+		}
+		else break;
+	}
+	return 1;
+}
+template<class T, class Op>
+void PriorityTree<T, Op>::print()
+{
+	int aux_X = 0;
+	int aux_Y = 0;
+
+	int lvl = 0;
+	int i = 1;
+	int lvl_pow = PriorityLast;
+	int m_height = 0;
+	while (!(lvl_pow && (!(lvl_pow & (lvl_pow - 1)))))
+	{
+		lvl_pow++;
+	}
+
+	lvl_pow = log(lvl_pow) / log(2) - 1;
+
+	int aux_XX = 0;
+	string str = to_string(data[PriorityLast]);
+	int len_str = str.length();
+	while (i <= PriorityLast)
+	{
+		aux_X = 2 * pow(2, lvl_pow);
+		aux_XX = 2 * pow(2, lvl_pow + 1);
+		for (int j = 0; i <= PriorityLast && j < pow(2, lvl); j++)
+		{
+			gotoxy(aux_X, aux_Y);
+			cout << "|" << data[i] << "|";
+			if(j!=0)
+				cout << "" << "   " << "";
+			aux_X += aux_XX + 1;
+			i++;
+		}
+		lvl_pow--;
+		aux_Y++;
+		lvl++;
+	}
+	cout << endl;
+
+}
+template<class T, class Op>
+void HeapSort(PriorityTree<T, Op>* arb)
+{
+	for (int i = arb->PriorityCount; i > 0; i--) {
+		arb->Extract_Max();
+	}
+}
+
+struct Trunk
+{
+	Trunk* prev;
+	string str;
+
+	Trunk(Trunk* prev, string str)
+	{
+		this->prev = prev;
+		this->str = str;
+	}
+};
+
+// Helper function to print branches of the binary tree
+void showTrunks(Trunk* p)
+{
+	if (p == nullptr)
+		return;
+
+	showTrunks(p->prev);
+
+	cout << p->str;
+}
+
+// Recursive function to print binary tree
+// It uses inorder traversal
+template<class T>
+void printTree(PriorityNode<T>* root, Trunk* prev, bool isLeft)
+{
+	if (root == nullptr)
+		return;
+
+	string prev_str = "    ";
+	Trunk* trunk = new Trunk(prev, prev_str);
+
+	printTree(root->P_Nodes[0], trunk, true);
+
+	if (!prev)
+		trunk->str = "---";
+	else if (isLeft)
+	{
+		trunk->str = ".---";
+		prev_str = "   |";
+	}
+	else
+	{
+		trunk->str = "`---";
+		prev->str = prev_str;
+	}
+
+	showTrunks(trunk);
+	cout << root->value << endl;
+
+	if (prev)
+		prev->str = prev_str;
+	trunk->str = "   |";
+
+	printTree(root->P_Nodes[1], trunk, false);
+}
+void menu()
+{
+	int opcion, dato;
+	PriorityTree<int, Mayor<int>> arbolito(1);
+	do {
+		cout << "\t         MENU   \n";
+		cout << "1. Insertar elementos en el arbol\n";
+		cout << "2. Mostrar el arbol\n";
+		cout << "3. Eliminar un Nodo de la Lista\n";
+		cout << "5. Salir\n";
+		cout << "Opcion: ";
+		cin >> opcion;
+
+		switch (opcion)
+		{
+		case 1:
+			cout << "Ingresa un numero: " << endl;
+			cin >> dato;
+			arbolito.Push(dato);
+			cout << "\n";
+			system("pause");
+			break;
+		case 2:  
+			system("cls");
+			arbolito.Extract_Max();
+			arbolito.print();
+			cout << "\n";
+			system("pause");
+			break;
+		
+		case 3: cout << "Ingrese el elemento que desea eliminar: ";
+			//cin >> dato;
+			//borrar(lista, dato);
+			//cout << "\n";
+			//system("pause");
+
+		}
+		system("cls");
+	} while (opcion != 5);
+}
+//template<class T, class Op>
+int main()
+{
+	menu();
 	
+	
+
+}
+
+
